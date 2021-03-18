@@ -56,7 +56,15 @@
               <a href="/users/{{ msg.user.id }}">@{{ msg.user.username }}</a>
               <span class="text-muted">{{ msg.timestamp.strftime('%d %B %Y') }}</span>
               <p>{{ msg.text }}</p>
+
             </div>
+            {% if g.user.id != msg.user_id %}
+              {% if g.user.is_liked_message(msg) and g.user.id != msg.user_id %}
+                <a href="/users/stop-liking/{{ msg.id }}"><i class="fas fa-star"></i></a>
+              {% else %}
+                <a href="/users/like/{{ msg.id }}"><i class="far fa-star"></i></a>
+              {% endif %}
+            {% endif %}
           </li>
         {% endfor %}
       </ul>

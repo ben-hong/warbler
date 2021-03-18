@@ -19,6 +19,13 @@
             </span>
             <p>{{ message.text }}</p>
           </div>
+          {% if g.user.id != message.user_id %}
+            {% if g.user.is_liked_message(message) and g.user.id != message.user_id %}
+              <a href="/users/stop-liking/{{ message.id }}"><i class="fas fa-star"></i></a>
+            {% else %}
+              <a href="/users/like/{{ message.id }}"><i class="far fa-star"></i></a>
+            {% endif %}
+          {% endif %}
         </li>
 
       {% endfor %}

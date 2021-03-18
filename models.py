@@ -26,6 +26,23 @@ class Follows(db.Model):
         primary_key=True,
     )
 
+class Likes(db.Model):
+    """Connects user <-> message"""
+
+    __table__name = 'liked'
+
+    like_user_id = db.Column(
+        db.Integer,
+        db.ForeignKey('users.id', ondelete="cascade"),
+        primary_key=True,
+    )
+
+    liked_message_id = db.Column(
+        db.Integer,
+        db.ForeignKey('messages.id', ondelete="cascade"),
+        primary_key=True,
+    )
+
 
 class User(db.Model):
     """User in the system."""
@@ -73,7 +90,15 @@ class User(db.Model):
         nullable=False,
     )
 
-    messages = db.relationship('Message', order_by='Message.timestamp.desc()')
+    messages = db.relationship(
+        'Message', 
+        order_by='Message.timestamp.desc()',
+    )
+
+    liked_messages = db.relationship(
+        'Message',
+        secondary='likes'
+    )
 
     followers = db.relationship(
         "User",
@@ -91,6 +116,12 @@ class User(db.Model):
 
     def __repr__(self):
         return f"<User #{self.id}: {self.username}, {self.email}>"
+    
+    def is_liked_message(self, message):
+        """Is message liked by user"""
+
+        liked_message_list = [msg for msg in self.liked_messages if msg == message]
+        return len(liked_message_list) == 1
 
     def is_followed_by(self, other_user):
         """Is this user followed by `other_user`?"""
@@ -172,7 +203,14 @@ class Message(db.Model):
         nullable=False,
     )
 
-    user = db.relationship('User')
+    user = db.relationship(
+        'User'
+    )
+
+    liked_by_user = db.relationship(
+        'User',
+        secondary='likes'
+    )
 
 
 def connect_db(app):
